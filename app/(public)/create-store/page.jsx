@@ -4,8 +4,15 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import Loading from "@/components/Loading"
+import { useAuth, useUser } from "@clerk/nextjs"
+import { useRouter } from "next/router"
+import axios from "axios"
 
 export default function CreateStore() {
+
+    const {user} = useUser()
+    const router = useRouter()
+    const {getToken} = useAuth()
 
     const [alreadySubmitted, setAlreadySubmitted] = useState(false)
     const [status, setStatus] = useState("")
@@ -35,14 +42,41 @@ export default function CreateStore() {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
-        // Logic to submit the store details
+        if(!user){
+            return toast("Please login to continue")
+        }
+        try {
+            const token = await getToken()
+            const formData = new FormData()
+            formData.append("name", storeInfo.name)
+            formData.append("username", storeInfo.username)
+            formData.append("description", storeInfo.description)
+            formData.append("email", storeInfo.email)
+            formData.append("contact", storeInfo.contact)
+            formData.append("address", storeInfo.address)
+            formData.append("image", storeInfo.image)
 
+            const {data} = await axios.post('/api/store/create', formData, {
+                headers: {'Authorization': `Bearer ${token}`}})
+                toast.success(data.message)
+                        } catch (error) {
+            console.error("Error submitting store details:", error)
+            toast.error("Failed to submit store details. Please try again.")
+        }
 
     }
 
     useEffect(() => {
         fetchSellerStatus()
     }, [])
+
+    if(!user){
+        return (
+            <div className="min-h-[80vh] flex flex-col items-center justify-center">
+                <p className="sm:text-2xl lg:text-3xl mx-5 font-semibold text-slate-500 text-center max-w-2xl">Please <span className="text-slate-800 font-medium">login</span> to continue</p>
+            </div>
+        )
+    }
 
     return !loading ? (
         <>
