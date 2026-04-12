@@ -1,3 +1,4 @@
+import { isDatabaseConnectivityError } from "@/lib/db-errors"
 import prisma from "@/lib/prisma"
 
 
@@ -20,6 +21,10 @@ const authSeller = async (userId) => {
             return false
         }
     } catch (error) {
+        if (isDatabaseConnectivityError(error)) {
+            throw error
+        }
+
         console.error(error)
         return false
     }

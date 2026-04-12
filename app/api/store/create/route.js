@@ -1,5 +1,6 @@
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { databaseUnavailableResponse, isDatabaseConnectivityError } from "@/lib/db-errors";
 import imagekit, { imageKitUrlEndpoint } from "@/configs/imageKit";
 import prisma from "@/lib/prisma";
 
@@ -86,8 +87,13 @@ export async function POST(request) {
             return NextResponse.json({message: "applied, waiting for approval"})
 
     } catch (error) {
+        if (isDatabaseConnectivityError(error)) {
+            console.error("Database connectivity error in /api/store/create POST:", error);
+            return databaseUnavailableResponse();
+        }
+
         console.error(error);
-        return NextResponse.json({error: error.code || error.message }, {status: 400})
+        return NextResponse.json({error: "internal server error" }, {status: 500})
     } 
 }
 
@@ -113,7 +119,12 @@ export async function GET(request) {
 
         return NextResponse.json({status: "not registered"})
     } catch (error) {
+        if (isDatabaseConnectivityError(error)) {
+            console.error("Database connectivity error in /api/store/create GET:", error);
+            return databaseUnavailableResponse();
+        }
+
         console.error(error);
-        return NextResponse.json({error: error.code || error.message }, {status: 400})
+        return NextResponse.json({error: "internal server error" }, {status: 500})
     }
 }
