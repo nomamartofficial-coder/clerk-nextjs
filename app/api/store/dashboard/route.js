@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import authSeller from "@/middleware/authSeller";
 import prisma from "@/lib/prisma";
-import { use } from "react";
 
 
 // Get Dashboard Data for Seller ( total orders, total earnings, total products)
@@ -10,6 +9,10 @@ export async function GET(request){
     try{
         const { userId } = getAuth(request)
         const storeId = await authSeller(userId)
+
+        if (!storeId) {
+            return NextResponse.json({ error: "not authorized" }, { status: 401 })
+        }
 
         // Get all orders for seller's products
         const orders = await prisma.order.findMany({where: {storeId}})

@@ -5,8 +5,8 @@ import Image from "next/image"
 import toast from "react-hot-toast"
 import Loading from "@/components/Loading"
 import { useAuth, useUser } from "@clerk/nextjs"
-import { useRouter } from "next/router"
 import axios from "axios"
+import { useRouter } from "next/navigation"
 
 export default function CreateStore() {
 
@@ -34,9 +34,34 @@ export default function CreateStore() {
     }
 
     const fetchSellerStatus = async () => {
-        // Logic to check if the store is already submitted
+        const token = await getToken()
+        try {
+            const {data} = await axios.get('/api/store/create', {headers: {'Authorization': `Bearer ${token}`}})
+            if(['approved', 'rejected', 'pending'].includes(data.status)){
+                setAlreadySubmitted(true)
+                setStatus(data.status)
+                setMessage(data.message)
+                switch (data.status) {
+                    case "approved":
+                        setMessage("Your store has been approved! You can now access your dashboard and start adding products.")
+                        setTimeout(() =>router.push("/store"), 5000)
+                        break;
+                    case "rejected":
+                        setMessage("Unfortunately, your store application was rejected. Please review the requirements and try again.")
+                        break;
+                    case "pending":
+                        setMessage("Your store application is currently under review. We will notify you once a decision has been made. Thank you for your patience.")
+                        break;
 
-
+                    default:
+                        break;
+                }
+            } else {
+                setAlreadySubmitted(false)
+            }
+        } catch (error) {
+            toast.error("Failed to fetch store status. Please try again.")
+        }
         setLoading(false)
     }
 
@@ -56,24 +81,26 @@ export default function CreateStore() {
             formData.append("address", storeInfo.address)
             formData.append("image", storeInfo.image)
 
-            const {data} = await axios.post('/api/store/create', formData, {
-                headers: {'Authorization': `Bearer ${token}`}})
-                toast.success(data.message)
-                        } catch (error) {
-            console.error("Error submitting store details:", error)
+        const {data} = await axios.post('/api/store/create', formData, {
+            headers: {Authorization: `Bearer ${token}`}})
+            toast.success(data.message)
+            await fetchSellerStatus()
+        } catch (error) {
             toast.error("Failed to submit store details. Please try again.")
         }
-
     }
 
     useEffect(() => {
+    if(user){
         fetchSellerStatus()
-    }, [])
+    }
+
+    }, [user])
 
     if(!user){
         return (
-            <div className="min-h-[80vh] flex flex-col items-center justify-center">
-                <p className="sm:text-2xl lg:text-3xl mx-5 font-semibold text-slate-500 text-center max-w-2xl">Please <span className="text-slate-800 font-medium">login</span> to continue</p>
+            <div className="min-h-[80vh] mx-6 flex items-center justify-center text-slate-400">
+                <h1 className="text-2xl sm:text-4xl  font-semibold">Please <span className="text-slate-500">login</span> to continue</h1>
             </div>
         )
     }

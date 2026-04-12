@@ -1,9 +1,11 @@
-import Imagekit from "imagekit";
+import ImageKit from "@imagekit/nodejs";
 
-var imagekit = new Imagekit({
-    publickey : process.env.IMAGEKIT_PUBLIC_KEY,
-    privatekey : process.env.IMAGEKIT_PRIVATE_KEY,
-    urlEndpoint : process.env.IMAGEKIT_URL_ENDPOINT
+export const imageKitUrlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT?.trim();
+
+const imagekit = new ImageKit({
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY?.trim(),
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY?.trim(),
+    urlEndpoint: imageKitUrlEndpoint,
 });
 
 export default imagekit;

@@ -1,12 +1,17 @@
 import { getAuth } from "@clerk/nextjs/server";
-import { format } from "date-fns";
-import { User } from "lucide-react";
 import { NextResponse } from "next/server";
+import imagekit, { imageKitUrlEndpoint } from "@/configs/imageKit";
+import prisma from "@/lib/prisma";
 
 // create the store
 export async function POST(request) {
     try {
         const { userId } = getAuth(request);
+
+        if (!userId) {
+            return NextResponse.json({ error: "not authorized" }, { status: 401 })
+        }
+
         // Get the data from the form
         const formdata = await request.formData();
 
@@ -43,14 +48,15 @@ export async function POST(request) {
 
             // upload the image to imagekit
             const buffer = Buffer.from(await image.arrayBuffer());
-            const response = await imagekit.upload({
+            const response = await imagekit.files.upload({
                 file: buffer,
                 fileName: image.name,
                 folder: "logos"
             })
 
-            const optimizedImage = imagekit.url({
-                path: response.filePath,
+            const optimizedImage = imagekit.helper.buildSrc({
+                urlEndpoint: imageKitUrlEndpoint,
+                src: response.filePath,
                 transformation: [
                     {quality: 'auto'},
                     { format: "webp" },
@@ -90,6 +96,10 @@ export async function POST(request) {
 export async function GET(request) {
     try {
         const { userId } = getAuth(request)
+
+        if (!userId) {
+            return NextResponse.json({ error: "not authorized" }, { status: 401 })
+        }
 
          // check if user have already registered a store
         const store = await prisma.store.findFirst({
