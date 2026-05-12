@@ -34,6 +34,9 @@ export default function StoreAddProduct() {
                 return toast.error('Please upload at least one image')
             }
             setLoading(true)
+
+            const formData = new FormData()
+            formData.append('name', productInfo.name)
         } catch (error) {
             
         }
