@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { databaseUnavailableResponse, isDatabaseConnectivityError } from "@/lib/db-errors";
+import {
+    databaseUnavailableResponse,
+    isDatabaseConnectivityError,
+    logDatabaseConnectivityError,
+} from "@/lib/db-errors";
 import prisma from "@/lib/prisma";
 
 // Get store info & store products
-
 
 
 export async function GET(request) {
@@ -19,19 +22,19 @@ export async function GET(request) {
         const username = usernameParam.toLocaleLowerCase();
 
         // Get store info and inStock products with ratings
-        const storeInfo = await prisma.store.findUnique({
+        const store = await prisma.store.findUnique({
             where: {username, isActive: true},
             include: {Product: {include: {rating: true}}}
         })
 
-        if(!storeInfo){
+        if(!store){
             return NextResponse.json({error: "store not found"}, {status: 400})
         }
 
-        return NextResponse.json({store: storeInfo})
+        return NextResponse.json({store})
     } catch (error) {
         if (isDatabaseConnectivityError(error)) {
-            console.error("Database connectivity error in /api/store/data:", error);
+            logDatabaseConnectivityError("/api/store/data GET", error);
             return databaseUnavailableResponse();
         }
 

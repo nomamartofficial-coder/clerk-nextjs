@@ -1,6 +1,6 @@
 'use client'
 import { assets } from "@/assets/assets"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import Loading from "@/components/Loading"
@@ -33,7 +33,7 @@ export default function CreateStore() {
         setStoreInfo({ ...storeInfo, [e.target.name]: e.target.value })
     }
 
-    const fetchSellerStatus = async () => {
+    const fetchSellerStatus = useCallback(async () => {
         const token = await getToken()
         try {
             const {data} = await axios.get('/api/store/create', {headers: {'Authorization': `Bearer ${token}`}})
@@ -63,7 +63,7 @@ export default function CreateStore() {
             toast.error("Failed to fetch store status. Please try again.")
         }
         setLoading(false)
-    }
+    }, [getToken, router])
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
@@ -74,8 +74,8 @@ export default function CreateStore() {
             const token = await getToken()
             const formData = new FormData()
             formData.append("name", storeInfo.name)
-            formData.append("username", storeInfo.username)
             formData.append("description", storeInfo.description)
+            formData.append("username", storeInfo.username)
             formData.append("email", storeInfo.email)
             formData.append("contact", storeInfo.contact)
             formData.append("address", storeInfo.address)
@@ -91,11 +91,12 @@ export default function CreateStore() {
     }
 
     useEffect(() => {
-    if(user){
-        fetchSellerStatus()
-    }
-
-    }, [user])
+        if(user){
+            (async () => {
+                await fetchSellerStatus()
+            })()
+        }
+    }, [user, fetchSellerStatus])
 
     if(!user){
         return (

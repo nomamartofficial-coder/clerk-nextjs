@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
-import { databaseUnavailableResponse, isDatabaseConnectivityError } from "@/lib/db-errors";
+import {
+    databaseUnavailableResponse,
+    isDatabaseConnectivityError,
+    logDatabaseConnectivityError,
+} from "@/lib/db-errors";
 import authSeller from "@/middleware/authSeller";
 import prisma from "@/lib/prisma";
 
@@ -29,14 +33,14 @@ export async function GET(request){
             const dashboardData = {
                 ratings,
                 totalOrders: orders.length,
-                totalEarnings: Math.round(orders.reduce((acc, order) => acc + order.totalAmount, 0)),
+                totalEarnings: Math.round(orders.reduce((acc, order) => acc + order.total, 0)),
                 totalProducts: products.length
             }
 
         return NextResponse.json({dashboardData});
         } catch (error) {
         if (isDatabaseConnectivityError(error)) {
-        console.error("Database connectivity error in /api/store/dashboard:", error);
+        logDatabaseConnectivityError("/api/store/dashboard GET", error);
         return databaseUnavailableResponse();
     }
 
