@@ -1,5 +1,4 @@
 'use client'
-import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 import Image from "next/image"
 import Loading from "@/components/Loading"
@@ -9,23 +8,14 @@ export default function StoreManageProducts() {
 
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₦';
 
-    const [loading, setLoading] = useState(true)
-    const [products, setProducts] = useState([])
-
-    const fetchProducts = async () => {
-        setProducts(productDummyData)
-        setLoading(false)
-    }
+    const loading = false
+    const products = productDummyData
 
     const toggleStock = async (productId) => {
         // Logic to toggle the stock of a product
 
 
     }
-
-    useEffect(() => {
-            fetchProducts()
-    }, [])
 
     if (loading) return <Loading />
 

@@ -2,9 +2,13 @@
 import { PackageIcon, Search, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useSelector } from "react-redux";
 import { useUser, useClerk, UserButton } from "@clerk/nextjs";
+
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 const Navbar = () => {
 
@@ -13,12 +17,8 @@ const Navbar = () => {
     const router = useRouter();
 
     const [search, setSearch] = useState('')
-    const [mounted, setMounted] = useState(false)
+    const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot)
     const cartCount = useSelector(state => state.cart.total)
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
 
     const handleSearch = (e) => {
         e.preventDefault()

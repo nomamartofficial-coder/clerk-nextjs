@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Loading from "../Loading"
 import Link from "next/link"
 import { ArrowRightIcon } from "lucide-react"
@@ -17,7 +17,7 @@ const StoreLayout = ({ children }) => {
     const [loading, setLoading] = useState(true)
     const [storeInfo, setStoreInfo] = useState(null)
 
-    const fetchIsSeller = async () => {
+    const fetchIsSeller = useCallback(async () => {
         try {
             const token = await getToken()
             const { data } = await axios.get('/api/store/is-seller', {headers: {Authorization: `Bearer ${token}`}})
@@ -29,11 +29,12 @@ const StoreLayout = ({ children }) => {
         finally{
             setLoading(false)
         }
-    }
+    }, [getToken])
 
     useEffect(() => {
+        // Fetch after mount; state updates when the API request resolves.
         fetchIsSeller()
-    }, [])
+    }, [fetchIsSeller])
 
     return loading ? (
         <Loading />

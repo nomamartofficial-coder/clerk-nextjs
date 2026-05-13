@@ -4,7 +4,7 @@ import StoreInfo from "@/components/admin/StoreInfo"
 import Loading from "@/components/Loading"
 import { useAuth, useUser } from "@clerk/nextjs"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
 export default function AdminStores() {
@@ -16,7 +16,7 @@ export default function AdminStores() {
     const [stores, setStores] = useState([])
     const [loading, setLoading] = useState(true)
 
-    const fetchStores = async () => {
+    const fetchStores = useCallback(async () => {
         try {
             const token = await getToken()
             const {data} = await axios.get('/api/admin/stores', {headers: {
@@ -26,7 +26,7 @@ export default function AdminStores() {
             toast.error(error?.response?.data?.error || error.message)
         }
         setLoading(false)
-    }
+    }, [getToken])
 
     const toggleIsActive = async (storeId) => {
         try {
@@ -42,9 +42,11 @@ export default function AdminStores() {
 
     useEffect(() => {
         if(user){
+            // Fetch after auth loads; state updates when the API request resolves.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchStores()
         }
-    }, [user])
+    }, [user, fetchStores])
 
     return !loading ? (
         <div className="text-slate-500 mb-28">

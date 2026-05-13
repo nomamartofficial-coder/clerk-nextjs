@@ -1,10 +1,11 @@
 'use client'
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 import { DeleteIcon } from "lucide-react"
 import { couponDummyData } from "@/assets/assets"
 import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
 
 export default function AdminCoupons() {
 
@@ -22,7 +23,7 @@ export default function AdminCoupons() {
         expiresAt: new Date()
     })
 
-    const fetchCoupons = async () => {
+    const fetchCoupons = useCallback(async () => {
         try {
            const token = await getToken()
            const { data } = await axios.get('/api/admin/coupon', {headers: { 
@@ -31,18 +32,20 @@ export default function AdminCoupons() {
         } catch (error) {
             toast.error(error?.response?.data?.error || error.message)
         }
-    }
+    }, [getToken])
 
     const handleAddCoupon = async (e) => {
         e.preventDefault()
         try {
             const token = await getToken()
 
-            newCoupon.discount = Number(newCoupon.discount)
-            newCoupon.expiresAt = new Date(newCoupon.expiresAt)
+            const couponPayload = {
+                ...newCoupon,
+                discount: Number(newCoupon.discount),
+                expiresAt: new Date(newCoupon.expiresAt)
+            }
 
-            const { data } = await axios.post('/api/admin/coupon',{coupon: 
-            newCoupon}, {headers: { Authorization: `Bearer ${token}`}})
+            const { data } = await axios.post('/api/admin/coupon', { coupon: couponPayload }, { headers: { Authorization: `Bearer ${token}` } })
             toast.success(data.message)
             await fetchCoupons()
         } catch (error) {
@@ -70,8 +73,10 @@ export default function AdminCoupons() {
     }
 
     useEffect(() => {
+        // Fetch after mount; state updates when the API request resolves.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchCoupons();
-    }, [])
+    }, [fetchCoupons])
 
     return (
         <div className="text-slate-500 mb-40">

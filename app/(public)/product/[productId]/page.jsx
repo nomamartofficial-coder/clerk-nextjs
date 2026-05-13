@@ -2,26 +2,18 @@
 import ProductDescription from "@/components/ProductDescription";
 import ProductDetails from "@/components/ProductDetails";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 export default function Product() {
 
     const { productId } = useParams();
-    const [product, setProduct] = useState();
     const products = useSelector(state => state.product.list);
-
-    const fetchProduct = async () => {
-        const product = products.find((product) => product.id === productId);
-        setProduct(product);
-    }
+    const product = products.find((product) => product.id === productId);
 
     useEffect(() => {
-        if (products.length > 0) {
-            fetchProduct()
-        }
-        scrollTo(0, 0)
-    }, [productId,products]);
+        window.scrollTo(0, 0)
+    }, [productId]);
 
     return (
         <div className="mx-6">

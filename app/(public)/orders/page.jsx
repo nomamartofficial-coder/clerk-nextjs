@@ -1,16 +1,11 @@
 'use client'
 import PageTitle from "@/components/PageTitle"
-import { useEffect, useState } from "react";
 import OrderItem from "@/components/OrderItem";
 import { orderDummyData } from "@/assets/assets";
 
 export default function Orders() {
 
-    const [orders, setOrders] = useState([]);
-
-    useEffect(() => {
-        setOrders(orderDummyData)
-    }, []);
+    const orders = orderDummyData;
 
     return (
         <div className="min-h-[70vh] mx-6">

@@ -6,7 +6,7 @@ import axios from "axios"
 import { CircleDollarSignIcon, ShoppingBasketIcon, StarIcon, TagsIcon } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
 export default function Dashboard() {
@@ -32,7 +32,7 @@ export default function Dashboard() {
         { title: 'Total Ratings', value: dashboardData.ratings.length, icon: StarIcon },
     ]
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
         try {
             const token = await getToken()
             const { data } = await axios.get('/api/store/dashboard', {headers: {Authorization: `Bearer ${token}`}})
@@ -41,11 +41,13 @@ export default function Dashboard() {
             toast.error(error?.response?.data?.error || error.message)
         }
         setLoading(false)
-    }
+    }, [getToken])
 
     useEffect(() => {
+        // Fetch after mount; state updates when the API request resolves.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchDashboardData()
-    }, [])
+    }, [fetchDashboardData])
 
     if (loading) return <Loading />
 

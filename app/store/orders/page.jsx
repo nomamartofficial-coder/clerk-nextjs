@@ -1,19 +1,15 @@
 'use client'
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Loading from "@/components/Loading"
 import { orderDummyData } from "@/assets/assets"
+import Image from "next/image"
 
 export default function StoreOrders() {
-    const [orders, setOrders] = useState([])
-    const [loading, setLoading] = useState(true)
+    const orders = orderDummyData
+    const loading = false
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-
-    const fetchOrders = async () => {
-       setOrders(orderDummyData)
-       setLoading(false)
-    }
 
     const updateOrderStatus = async (orderId, status) => {
         // Logic to update the status of an order
@@ -30,10 +26,6 @@ export default function StoreOrders() {
         setSelectedOrder(null)
         setIsModalOpen(false)
     }
-
-    useEffect(() => {
-        fetchOrders()
-    }, [])
 
     if (loading) return <Loading />
 
@@ -119,10 +111,12 @@ export default function StoreOrders() {
                             <div className="space-y-2">
                                 {selectedOrder.orderItems.map((item, i) => (
                                     <div key={i} className="flex items-center gap-4 border border-slate-100 shadow rounded p-2">
-                                        <img
+                                        <Image
                                             src={item.product.images?.[0].src || item.product.images?.[0]}
-                                            alt={item.product?.name}
+                                            alt={item.product?.name || "Product image"}
                                             className="w-16 h-16 object-cover rounded"
+                                            width={64}
+                                            height={64}
                                         />
                                         <div className="flex-1">
                                             <p className="text-slate-800">{item.product?.name}</p>

@@ -1,30 +1,17 @@
 'use client'
 import ProductCard from "@/components/ProductCard"
 import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
 import { MailIcon, MapPinIcon } from "lucide-react"
-import Loading from "@/components/Loading"
 import Image from "next/image"
 import { dummyStoreData, productDummyData } from "@/assets/assets"
 
 export default function StoreShop() {
 
     const { username } = useParams()
-    const [products, setProducts] = useState([])
-    const [storeInfo, setStoreInfo] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const products = productDummyData
+    const storeInfo = dummyStoreData
 
-    const fetchStoreData = async () => {
-        setStoreInfo(dummyStoreData)
-        setProducts(productDummyData)
-        setLoading(false)
-    }
-
-    useEffect(() => {
-        fetchStoreData()
-    }, [])
-
-    return !loading ? (
+    return (
         <div className="min-h-[70vh] mx-6">
 
             {/* Store Info Banner */}
@@ -64,5 +51,5 @@ export default function StoreShop() {
                 </div>
             </div>
         </div>
-    ) : <Loading />
+    )
 }

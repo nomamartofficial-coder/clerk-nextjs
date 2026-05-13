@@ -5,7 +5,7 @@ import PageTitle from "@/components/PageTitle";
 import { deleteItemFromCart } from "@/lib/features/cart/cartSlice";
 import { Trash2Icon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Cart() {
@@ -17,12 +17,10 @@ export default function Cart() {
 
     const dispatch = useDispatch();
 
-    const [cartArray, setCartArray] = useState([]);
-    const [totalPrice, setTotalPrice] = useState(0);
-
-    const createCartArray = () => {
-        setTotalPrice(0);
+    const { cartArray, totalPrice } = useMemo(() => {
         const cartArray = [];
+        let totalPrice = 0;
+
         for (const [key, value] of Object.entries(cartItems)) {
             const product = products.find(product => product.id === key);
             if (product) {
@@ -30,21 +28,16 @@ export default function Cart() {
                     ...product,
                     quantity: value,
                 });
-                setTotalPrice(prev => prev + product.price * value);
+                totalPrice += product.price * value;
             }
         }
-        setCartArray(cartArray);
-    }
+
+        return { cartArray, totalPrice };
+    }, [cartItems, products]);
 
     const handleDeleteItemFromCart = (productId) => {
         dispatch(deleteItemFromCart({ productId }))
     }
-
-    useEffect(() => {
-        if (products.length > 0) {
-            createCartArray();
-        }
-    }, [cartItems, products]);
 
     return cartArray.length > 0 ? (
         <div className="min-h-screen mx-6 text-slate-800">
