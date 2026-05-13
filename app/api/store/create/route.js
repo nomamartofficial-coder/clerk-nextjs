@@ -16,8 +16,6 @@ import { toFile } from "@imagekit/nodejs";
 
 // create the store
 export async function POST(request) {
-    console.log("DATABASE_URL =", process.env.DATABASE_URL)
-
     try {
         const { userId } = getAuth(request);
 
@@ -139,8 +137,6 @@ export async function POST(request) {
 // check if the user have already registered a store if yes then send the status of the store
 
 export async function GET(request) {
-    console.log("DATABASE_URL =", process.env.DATABASE_URL)
-
     try {
         const { userId } = getAuth(request)
 

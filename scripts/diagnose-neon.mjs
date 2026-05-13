@@ -4,7 +4,7 @@ import net from "node:net";
 import tls from "node:tls";
 
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 
 const timeoutMs = Number(process.env.NEON_DIAG_TIMEOUT_MS ?? 10000);
 
